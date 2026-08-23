@@ -28,9 +28,7 @@ final class WhatsAppGateway: MessagingGateway {
             if let bridgeError { throw bridgeError }
         }
         guard let manager else { throw StoreError.configuration("Не удалось создать WhatsMeow") }
-        var bridgeError: NSError?
-        _ = manager.connect(&bridgeError)
-        if let bridgeError { throw bridgeError }
+        try manager.connect()
     }
 
     func loadChats() async throws {
@@ -45,9 +43,7 @@ final class WhatsAppGateway: MessagingGateway {
 
     func loadHistory(chatID: String, limit: Int) async throws {
         guard let manager else { throw StoreError.configuration("WhatsApp не подключён") }
-        var bridgeError: NSError?
-        _ = manager.loadHistory(chatID, limit: limit, error: &bridgeError)
-        if let bridgeError { throw bridgeError }
+        try manager.loadHistory(chatID, limit: limit)
     }
     func sendText(chatID: String, text: String) async throws -> String {
         guard let manager else { throw StoreError.configuration("WhatsApp не подключён") }
@@ -58,9 +54,7 @@ final class WhatsAppGateway: MessagingGateway {
     }
     func logOut() async throws {
         guard let manager else { return }
-        var bridgeError: NSError?
-        _ = manager.logout(&bridgeError)
-        if let bridgeError { throw bridgeError }
+        try manager.logout()
     }
     func close() { manager?.close(); manager = nil }
 
