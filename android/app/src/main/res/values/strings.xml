@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MsgCrypt</string>
+    <string name="add_account">Добавить аккаунт</string>
+    <string name="whatsapp">WhatsApp</string>
+    <string name="telegram">Telegram</string>
+    <string name="send_encrypted">Отправить зашифрованно</string>
+</resources>
+

@@ -1,0 +1,38 @@
+name: MsgCrypt
+options:
+  minimumXcodeGenVersion: 2.42.0
+  deploymentTarget:
+    iOS: "16.0"
+packages:
+  TDLibFramework:
+    url: https://github.com/Swiftgram/TDLibFramework.git
+    exactVersion: 1.8.66-022d6020
+targets:
+  MsgCrypt:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - path: Sources
+    resources:
+      - path: ../protocol/wordcoder-ru.json
+    dependencies:
+      - package: TDLibFramework
+      - framework: Frameworks/Whatsbridge.xcframework
+        embed: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.msgcrypt.app
+        PRODUCT_NAME: MsgCrypt
+        SWIFT_VERSION: 5.10
+        TARGETED_DEVICE_FAMILY: "1,2"
+        CURRENT_PROJECT_VERSION: 1
+        MARKETING_VERSION: 0.1.0
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_CFBundleDisplayName: MsgCrypt
+        INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.social-networking
+        INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        CODE_SIGNING_ALLOWED: NO
+    scheme:
+      gatherCoverageData: false
