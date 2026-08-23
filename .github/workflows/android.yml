@@ -35,7 +35,7 @@ jobs:
       - name: Set up Android NDK
         shell: bash
         run: |
-          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;27.2.12479018"
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "ndk;27.2.12479018" || test -d "$ANDROID_HOME/ndk/27.2.12479018"
           echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.2.12479018" >> "$GITHUB_ENV"
 
       - name: Build WhatsMeow Gomobile AAR
@@ -45,6 +45,7 @@ jobs:
           gomobile init
           mkdir -p android/app/libs
           cd bridge/whatsmeow
+          go get -tool golang.org/x/mobile/cmd/gobind@latest
           gomobile bind -v -target=android -androidapi=26 -javapkg=dev.msgcrypt.bridge -o ../../android/app/libs/whatsbridge.aar .
 
       - name: Set up Gradle

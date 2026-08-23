@@ -36,6 +36,7 @@ jobs:
           gomobile init
           mkdir -p ios/Frameworks
           cd bridge/whatsmeow
+          go get -tool golang.org/x/mobile/cmd/gobind@latest
           gomobile bind -v -target=ios -o ../../ios/Frameworks/Whatsbridge.xcframework .
 
       - name: Install XcodeGen
