@@ -34,5 +34,6 @@ targets:
         INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents: YES
         INFOPLIST_KEY_UILaunchScreen_Generation: YES
         CODE_SIGNING_ALLOWED: NO
+        OTHER_LDFLAGS: "$(inherited) -lresolv"
     scheme:
       gatherCoverageData: false

@@ -36,7 +36,7 @@ jobs:
 
       - name: Cache Go and WhatsMeow XCFramework
         id: whats-cache
-        uses: actions/cache@v4
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/go/pkg/mod
@@ -55,6 +55,16 @@ jobs:
           go get -tool golang.org/x/mobile/cmd/gobind@v0.0.0-20260821190718-4776eadac327
           gomobile bind -v -target=ios -o ../../ios/Frameworks/Whatsbridge.xcframework .
 
+      - name: Save WhatsMeow XCFramework cache
+        if: steps.whats-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/Library/Caches/go-build
+            ios/Frameworks/Whatsbridge.xcframework
+          key: ${{ steps.whats-cache.outputs.cache-primary-key }}
+
       - name: Install XcodeGen
         run: brew install xcodegen
 
@@ -63,7 +73,8 @@ jobs:
         run: xcodegen generate
 
       - name: Cache SwiftPM and prebuilt TDLibFramework
-        uses: actions/cache@v4
+        id: swiftpm-cache
+        uses: actions/cache/restore@v4
         with:
           path: |
             ~/Library/Caches/org.swift.swiftpm
@@ -73,6 +84,15 @@ jobs:
       - name: Resolve prebuilt TDLibFramework
         working-directory: ios
         run: xcodebuild -resolvePackageDependencies -project MsgCrypt.xcodeproj -scheme MsgCrypt -derivedDataPath build/DerivedData
+
+      - name: Save prebuilt TDLibFramework cache
+        if: steps.swiftpm-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            ~/Library/Caches/org.swift.swiftpm
+            ios/build/DerivedData/SourcePackages
+          key: ${{ steps.swiftpm-cache.outputs.cache-primary-key }}
 
       - name: Build unsigned device app
         working-directory: ios
