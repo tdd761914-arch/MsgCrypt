@@ -33,35 +33,17 @@ docs/                     архитектура, безопасность и wi
 
 ## Сборка
 
-Для Telegram нужен собственный `api_id` и `api_hash`, полученный на
-<https://my.telegram.org>. Они не коммитятся в Git.
+Для Telegram пользователь вводит собственные `api_id` и `api_hash`, полученные
+на <https://my.telegram.org>, непосредственно на экране входа. В исходники,
+GitHub Secrets и артефакты сборки они не попадают.
 
-### Android
-
-```sh
-cd android
-cp local.properties.example local.properties
-# заполнить MSGCRYPT_TELEGRAM_API_ID и MSGCRYPT_TELEGRAM_API_HASH
-./gradlew :app:testDebugUnitTest :app:assembleDebug
-```
-
-Скрипт `scripts/build-whatsmeow-android.sh` создаёт WhatsMeow AAR.
-`scripts/build-tdlight-android.sh` собирает совместимый `libtdjni.so` для
-TDLight Java. GitHub Actions выполняет эти шаги и публикует APK как artifact.
-
-### iOS
-
-```sh
-brew install xcodegen
-cd ios
-xcodegen generate
-xcodebuild -scheme MsgCrypt -destination 'platform=iOS Simulator,name=iPhone 16' test
-```
-
-`TDLibFramework` закреплён на `1.8.66-022d6020` с проверкой SHA-256. WhatsMeow
-XCFramework создаёт `scripts/build-whatsmeow-ios.sh`. Для IPA необходимы
-Apple signing certificate и provisioning profile; CI без этих секретов строит
-и тестирует simulator-приложение.
+Локальная сборка для проекта не требуется и не используется. Workflow
+[`Android APK`](.github/workflows/android.yml) берёт готовые Maven-артефакты
+TDLight Java, собирает только WhatsMeow Gomobile bridge и публикует APK.
+Workflow [`iOS unsigned IPA`](.github/workflows/ios.yml) подключает готовый
+`TDLibFramework` `1.8.66-022d6020` (checksum закреплён upstream), собирает
+WhatsMeow XCFramework и публикует **неподписанный IPA**. Оба запускаются на
+каждый push и вручную через `workflow_dispatch`.
 
 ## Важное предупреждение
 
@@ -69,4 +51,3 @@ WhatsMeow использует неофициальный WhatsApp Web API. Meta
 протокол или ограничить аккаунт. MsgCrypt не связан с WhatsApp, Meta, Telegram
 или авторами используемых библиотек. Перед реальным использованием нужна
 независимая криптографическая проверка реализации.
-

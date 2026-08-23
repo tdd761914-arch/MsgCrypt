@@ -112,7 +112,10 @@ final class AppStore: ObservableObject {
         guard let data = try? Data(contentsOf: persistenceURL),
               let snapshot = decode(data) else { return }
         accounts = snapshot.accounts
-        chats = snapshot.chats
+        chats = snapshot.chats.map {
+            Chat(accountID: $0.accountID, remoteID: $0.remoteID, title: $0.title, lastText: $0.lastText,
+                 lastAt: $0.lastAt, unread: $0.unread, secureState: .none)
+        }
         messages = snapshot.messages
     }
 
