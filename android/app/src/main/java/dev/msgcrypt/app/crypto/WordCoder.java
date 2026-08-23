@@ -1,6 +1,7 @@
 package dev.msgcrypt.app.crypto;
 
 import org.json.JSONObject;
+import org.json.JSONException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -41,7 +42,12 @@ public final class WordCoder {
             if (output.size() + count > 65536) throw new ProtocolException("WordCoder dictionary is too large");
             output.write(buffer, 0, count);
         }
-        JSONObject json = new JSONObject(output.toString(StandardCharsets.UTF_8.name()));
+        JSONObject json;
+        try {
+            json = new JSONObject(output.toString(StandardCharsets.UTF_8.name()));
+        } catch (JSONException error) {
+            throw new ProtocolException("Invalid WordCoder JSON", error);
+        }
         String[] words = new String[256];
         Set<String> seen = new HashSet<>();
         for (int value = 0; value < 256; value++) {
@@ -73,4 +79,3 @@ public final class WordCoder {
         return result;
     }
 }
-
