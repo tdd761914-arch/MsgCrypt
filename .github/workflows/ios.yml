@@ -3,6 +3,11 @@ name: iOS unsigned IPA
 on:
   push:
     branches: [main]
+    paths:
+      - "ios/**"
+      - "bridge/whatsmeow/**"
+      - "protocol/**"
+      - ".github/workflows/ios.yml"
   pull_request:
   workflow_dispatch:
 
@@ -29,14 +34,25 @@ jobs:
           go-version: "1.26.5"
           cache: false
 
+      - name: Cache Go and WhatsMeow XCFramework
+        id: whats-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/Library/Caches/go-build
+            ios/Frameworks/Whatsbridge.xcframework
+          key: whatsapp-ios-gomobile-4776eadac327-${{ hashFiles('bridge/whatsmeow/**') }}
+
       - name: Build WhatsMeow Gomobile XCFramework
+        if: steps.whats-cache.outputs.cache-hit != 'true'
         shell: bash
         run: |
-          go install golang.org/x/mobile/cmd/gomobile@latest
+          go install golang.org/x/mobile/cmd/gomobile@v0.0.0-20260821190718-4776eadac327
           gomobile init
           mkdir -p ios/Frameworks
           cd bridge/whatsmeow
-          go get -tool golang.org/x/mobile/cmd/gobind@latest
+          go get -tool golang.org/x/mobile/cmd/gobind@v0.0.0-20260821190718-4776eadac327
           gomobile bind -v -target=ios -o ../../ios/Frameworks/Whatsbridge.xcframework .
 
       - name: Install XcodeGen
@@ -46,9 +62,17 @@ jobs:
         working-directory: ios
         run: xcodegen generate
 
+      - name: Cache SwiftPM and prebuilt TDLibFramework
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/org.swift.swiftpm
+            ios/build/DerivedData/SourcePackages
+          key: swiftpm-tdlibframework-1.8.66-022d6020-${{ hashFiles('ios/project.yml') }}
+
       - name: Resolve prebuilt TDLibFramework
         working-directory: ios
-        run: xcodebuild -resolvePackageDependencies -project MsgCrypt.xcodeproj -scheme MsgCrypt
+        run: xcodebuild -resolvePackageDependencies -project MsgCrypt.xcodeproj -scheme MsgCrypt -derivedDataPath build/DerivedData
 
       - name: Build unsigned device app
         working-directory: ios

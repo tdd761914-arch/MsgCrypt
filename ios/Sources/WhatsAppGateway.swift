@@ -1,7 +1,7 @@
 import Foundation
 import Whatsbridge
 
-private final class WhatsEventListener: NSObject, WhatsbridgeListener {
+private final class WhatsEventListener: NSObject, WhatsbridgeListenerProtocol {
     var handler: ((String) -> Void)?
     func onEvent(_ eventJSON: String?) { if let eventJSON { handler?(eventJSON) } }
 }
@@ -23,23 +23,45 @@ final class WhatsAppGateway: MessagingGateway {
         if manager == nil {
             try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true,
                                                     attributes: [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication])
-            manager = try WhatsbridgeNewManager(root.path, listener)
+            var bridgeError: NSError?
+            manager = WhatsbridgeNewManager(root.path, listener, &bridgeError)
+            if let bridgeError { throw bridgeError }
         }
-        try manager?.connect()
+        guard let manager else { throw StoreError.configuration("Не удалось создать WhatsMeow") }
+        var bridgeError: NSError?
+        _ = manager.connect(&bridgeError)
+        if let bridgeError { throw bridgeError }
     }
 
     func loadChats() async throws {
-        guard let raw = try manager?.listChats(), let data = raw.data(using: .utf8),
+        guard let manager else { throw StoreError.configuration("WhatsApp не подключён") }
+        var bridgeError: NSError?
+        let raw = manager.listChats(&bridgeError)
+        if let bridgeError { throw bridgeError }
+        guard let data = raw.data(using: String.Encoding.utf8),
               let rows = try JSONSerialization.jsonObject(with: data) as? [[String: Any]] else { return }
         for row in rows { emitChat(row) }
     }
 
-    func loadHistory(chatID: String, limit: Int) async throws { try manager?.loadHistory(chatID, limit: limit) }
+    func loadHistory(chatID: String, limit: Int) async throws {
+        guard let manager else { throw StoreError.configuration("WhatsApp не подключён") }
+        var bridgeError: NSError?
+        _ = manager.loadHistory(chatID, limit: limit, error: &bridgeError)
+        if let bridgeError { throw bridgeError }
+    }
     func sendText(chatID: String, text: String) async throws -> String {
         guard let manager else { throw StoreError.configuration("WhatsApp не подключён") }
-        return try manager.sendText(chatID, text: text)
+        var bridgeError: NSError?
+        let result = manager.sendText(chatID, text: text, error: &bridgeError)
+        if let bridgeError { throw bridgeError }
+        return result
     }
-    func logOut() async throws { try manager?.logout() }
+    func logOut() async throws {
+        guard let manager else { return }
+        var bridgeError: NSError?
+        _ = manager.logout(&bridgeError)
+        if let bridgeError { throw bridgeError }
+    }
     func close() { manager?.close(); manager = nil }
 
     private func receive(_ json: String) {
