@@ -12,7 +12,7 @@ UI (Accounts -> Chats -> Messages)
           TextMessageService
           /                \
  WhatsAppGateway       TelegramGateway
- WhatsMeow/Gomobile    TDLight Java / TDLibFramework
+ WhatsMeow/Gomobile    Android TDLib AAR / iOS TDLibFramework
           \                /
              CryptoSession
        ECDH + HKDF + AES-GCM + ECDSA
@@ -40,4 +40,3 @@ UI (Accounts -> Chats -> Messages)
 Полученный ключ сначала имеет статус `keyReady`. Пользователь сравнивает
 отпечаток с собеседником по независимому каналу и подтверждает его. Отправка
 DATA разрешена только в `verified`. Смена identity key сбрасывает доверие.
-

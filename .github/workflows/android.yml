@@ -47,6 +47,34 @@ jobs:
             android/app/libs/whatsbridge.aar
           key: whatsapp-android-gomobile-4776eadac327-${{ hashFiles('bridge/whatsmeow/**') }}
 
+      - name: Restore prebuilt Android TDLib
+        id: tdlib-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: android/app/libs/tdlib.aar
+          key: tdlib-android-1.8.66-022d602-b7e38f0270a72299005837d26858f623d67c8f0438211bdb7c1288ba1c67a699
+
+      - name: Download prebuilt Android TDLib
+        if: steps.tdlib-cache.outputs.cache-hit != 'true'
+        shell: bash
+        run: |
+          mkdir -p android/app/libs
+          curl --fail --location --retry 3 \
+            --output android/app/libs/tdlib.aar \
+            https://github.com/FaiBah/TDLibAndroidPrebuilt/releases/download/v1.8.66-022d602-Java/tdlib.aar
+
+      - name: Verify prebuilt Android TDLib
+        shell: bash
+        run: |
+          echo "b7e38f0270a72299005837d26858f623d67c8f0438211bdb7c1288ba1c67a699  android/app/libs/tdlib.aar" | sha256sum --check --strict
+
+      - name: Save prebuilt Android TDLib cache
+        if: steps.tdlib-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: android/app/libs/tdlib.aar
+          key: ${{ steps.tdlib-cache.outputs.cache-primary-key }}
+
       - name: Set up Android NDK
         shell: bash
         run: |
@@ -73,11 +101,13 @@ jobs:
         working-directory: android
         run: gradle --build-cache --stacktrace :app:testDebugUnitTest :app:assembleDebug
 
-      - name: Verify APK contains WhatsMeow bridge
+      - name: Verify APK contains native transports
         shell: bash
         run: |
           test -s android/app/build/outputs/apk/debug/app-debug.apk
           unzip -l android/app/build/outputs/apk/debug/app-debug.apk | grep -q 'classes'
+          unzip -l android/app/build/outputs/apk/debug/app-debug.apk | grep -q 'lib/arm64-v8a/libtdjni.so'
+          unzip -l android/app/build/outputs/apk/debug/app-debug.apk | grep -q 'lib/arm64-v8a/libgojni.so'
 
       - name: Upload APK
         uses: actions/upload-artifact@v4

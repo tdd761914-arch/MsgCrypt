@@ -11,10 +11,8 @@ android/app/libs/*.aar
 android/app/src/main/jniLibs/
 ios/Frameworks/
 bridge/whatsmeow/build/
-bridge/tdlight-android/build/
 *.jks
 *.keystore
 *.mobileprovision
 *.p12
 secrets.properties
-

@@ -26,7 +26,6 @@ Telegram увидят служебные WordCoder-пакеты и не смог
 android/                  Java-приложение Android
 ios/                      SwiftUI-приложение iOS
 bridge/whatsmeow/         Go/Gomobile bridge для WhatsMeow
-bridge/tdlight-android/    сборка Android JNI для TDLight Java
 protocol/                 общие тестовые векторы
 docs/                     архитектура, безопасность и wire protocol
 ```
@@ -38,8 +37,11 @@ docs/                     архитектура, безопасность и wi
 GitHub Secrets и артефакты сборки они не попадают.
 
 Локальная сборка для проекта не требуется и не используется. Workflow
-[`Android APK`](.github/workflows/android.yml) берёт готовые Maven-артефакты
-TDLight Java, собирает только WhatsMeow Gomobile bridge и публикует APK.
+[`Android APK`](.github/workflows/android.yml) скачивает готовый Android AAR
+TDLib `1.8.66-022d602` с JNI для четырёх ABI, проверяет его SHA-256, собирает
+только WhatsMeow Gomobile bridge и публикует APK. Официальные Maven-артефакты
+TDLight Java содержат desktop JNI, но не Android `libtdjni.so`, поэтому при
+запрете локальной сборки TDLib используется совместимый prebuilt Android AAR.
 Workflow [`iOS unsigned IPA`](.github/workflows/ios.yml) подключает готовый
 `TDLibFramework` `1.8.66-022d6020` (checksum закреплён upstream), собирает
 WhatsMeow XCFramework и публикует **неподписанный IPA**. Оба запускаются на

@@ -51,11 +51,6 @@ dependencies {
     implementation "org.slf4j:slf4j-api:2.0.17"
     implementation "org.slf4j:slf4j-nop:2.0.17"
 
-    implementation("it.tdlight:tdlight-java:3.5.5+td.1.8.66:jdk8") {
-        exclude group: "it.tdlight", module: "tdlight-api"
-    }
-    implementation "it.tdlight:tdlight-api:4.0.562:legacy"
-
     coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.5"
 
     testImplementation "junit:junit:4.13.2"
